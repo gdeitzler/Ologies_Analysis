@@ -1,0 +1,140 @@
+---
+title: "Ologies_Analysis"
+output: html_document
+date: "2024-02-11"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(RColorBrewer)
+library(patchwork)
+library(tidyr)
+library(dplyr)
+library(tidyverse)
+
+setwd("~/Ologies_Analysis")
+
+```
+
+
+# What's in an Ology: A Breakdown of Ologies Episodes by Category
+
+## Data wrangling
+
+The dataframe read in here was generated using a python script which can be found in the github. This script was used to parse ologies episodes and extract meaningful information - duration of the episode, type of ology, and date.
+
+Data was then manually curated to add in broad classifications and subcategories. These were based on Wikipedia designations of branches of science: Formal, Natural, and Social sciences; with Applied or Foundational designations. This was further broken down into additional branches. Since many episodes are interdisciplinary, we gave primary and secondary designations.
+
+```{r}
+df <- read.csv("Ologies_Data.csv")
+View(df)
+
+df <- df[-c(12:14)] #trimming out extraneous columns
+
+ologies <- df[!is.na(df$ology),] #selecting just the episodes with ologies
+ologies <- ologies[!is.na(ologies$branch),] #excluding any NAs for branch - this also excludes smologies
+View(ologies)
+
+#we want to exclude encores so they aren't counted twice
+
+ologies <- subset(ologies, encore == 0)
+
+#same with part 2 episodes
+ologies <- subset(ologies, part_2 == 0)
+
+#final dataframe
+
+dim(ologies)
+write.csv(ologies, file = "trimmed_ologies.csv")
+
+ologies <- read.csv(file = "trimmed_ologies.csv")
+```
+ Final analysis includes 246 unique episodes of Ologies by Alie Ward.
+ 
+## What is the most common primary topic of Ologies?
+ 
+
+ 
+```{r}
+
+#good but we can do better. let's reorder the dataframe so we can order by occurence
+
+
+primary2 <- ggplot(data = ologies, aes(primary, fill = primary)) +
+  geom_bar(stat = "count", col = "#d397fa", alpha = 0.2)  +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  ggtitle("Ologies episode by primary topic")
+  
+  
+primary2
+```
+ 
+ ## By broad category
+ 
+```{r}
+branch <- ggplot(data = ologies, aes(branch, fill = branch)) +
+  geom_bar(stat = "count", col = "#d397fa", alpha = 0.2)  +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  ggtitle("Ologies episode by branch of science")
+  
+  
+branch
+```
+ 
+ Transform frequency into a count variable using dplyr
+ 
+```{r}
+ologies_count <- ologies %>%
+  group_by(primary) %>%
+  count(primary)
+```
+
+Re-order
+
+```{r}
+ologies_count <- as.data.frame(ologies_count)
+colnames(ologies_count) <- c("Primary", "Count")
+
+ologies_order <- ologies_count[order(ologies_count$Count),]
+ologies_order$Primary <- factor(ologies_order$Primary, levels = ologies_order$Primary)
+
+ggplot(ologies_order, aes(x = Primary, y = Count, fill = Primary)) + 
+  geom_bar(stat = "identity", col = "#d397fa", alpha = 0.2)  +
+  theme_minimal() +
+  theme(axis.text.x = element_text(hjust = 1, vjust = 0.5)) +
+  ggtitle("Ologies episode by primary scientific category")+
+  coord_flip()
+```
+
+Boxplot with scatter of episode length
+
+```{r}
+head(ologies)
+
+ologies_min_order <- ologies[order(ologies$duration_min),]
+ologies_min_order$duration_min <- factor(ologies_min_order$duration_min, levels = ologies_min_order$duration_min)
+
+ggplot(data = ologies_min_order, aes(x = primary, y = duration_min, fill = primary)) +
+  geom_boxplot(col = "#d397fa", alpha = 0.2) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  ggtitle("Duration of ologies episodes")
+  
+```
+```{r}
+
+ggplot(ologies_min_order, aes(x = primary, y = duration_min, fill = primary)) + geom_bar(stat="summary", fun.y="mean", col = "#d397fa", alpha = 0.2) + 
+geom_errorbar(stat="summary", colour = "#d397fa", width = 0.2,
+				fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))}, 
+				fun.ymax=function(x) {mean(x)+sd(x)/sqrt(length(x))}) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+  ggtitle("Mean duration of ologies episodes (with error)")
+
+```
+
+
+ 
