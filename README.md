@@ -26,4 +26,8 @@ In particular, it extracts the specific "ology" from the title and adds that to 
 
 This simple script checks for duplicate episodes using the flags from earlier, and removes them from the dataset to get a simpler csv focused purely on the different, original episodes.
 
-From here, the final Ologies_Dataset.csv was cleaned up and then manually labeled with the branch of science label for each episode to get additional labels.
+From here, the final Ologies_Dataset.csv was cleaned up and then manually labeled with the branch of science label for each episode to get additional sorting labels.
+
+## Ologies Analysis R
+
+This file includes all of the R code used to visualize the curated dataset. ggplot2 is used to create plots to investigate differences in primary topic distribution, episode length, frequency, and patterns over time.
