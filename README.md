@@ -3,6 +3,8 @@ Statistical analysis of the popular sci-comm podcast Ologies, hosted by Alie War
 
 Ever wondered what types of "Ologies" appear most frequently on the podcast? We're doing an analysis to assess prevalence of different fields and subfields and their representation on the Ologies show. This started as just a fun project to learn more data science skills.
 
+This project is a collaboration between Grace Deitzler, PHD and Nick Bira, PHD, two long-time Ologies enthusiasts.
+
 # Ologies Dataset Parsing using Spotify
 
 Datascraping from Spotify to create this dataset of the Ologies podcast was accomplished using four simple python files.
