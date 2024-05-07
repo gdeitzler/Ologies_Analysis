@@ -1,34 +1,24 @@
----
-title: "Ologies_Analysis"
-output:
-  github_document:
-    html_preview: false
-date: "2024-05-06"
----
+Ologies_Analysis
+================
+2024-05-06
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(ggplot2)
-library(RColorBrewer)
-library(patchwork)
-library(tidyr)
-library(dplyr)
-library(tidyverse)
-library(stringr)
-
-
-```
-
-
-# What's in an Ology: A Breakdown of Ologies Episodes by Category
+# What’s in an Ology: A Breakdown of Ologies Episodes by Category
 
 ## Data wrangling
 
-The dataframe read in here was generated using a python script which can be found in the github. This script was used to parse ologies episodes and extract meaningful information - duration of the episode, type of ology, and date.
+The dataframe read in here was generated using a python script which can
+be found in the github. This script was used to parse ologies episodes
+and extract meaningful information - duration of the episode, type of
+ology, and date.
 
-Data was then manually curated to add in broad classifications and subcategories. These were based on Wikipedia designations of branches of science: Formal, Natural, and Social sciences; with Applied or Foundational designations. This was further broken down into additional branches. Since many episodes are interdisciplinary, we gave primary and secondary designations.
+Data was then manually curated to add in broad classifications and
+subcategories. These were based on Wikipedia designations of branches of
+science: Formal, Natural, and Social sciences; with Applied or
+Foundational designations. This was further broken down into additional
+branches. Since many episodes are interdisciplinary, we gave primary and
+secondary designations.
 
-```{r}
+``` r
 df <- read.csv("Ologies_Data.csv")
 View(df)
 
@@ -48,18 +38,21 @@ ologies <- subset(ologies, part_2 == 0)
 #final dataframe
 
 dim(ologies)
+```
+
+    ## [1] 246  11
+
+``` r
 write.csv(ologies, file = "trimmed_ologies.csv")
 
 ologies <- read.csv(file = "trimmed_ologies.csv")
 ```
- Final analysis includes 246 unique episodes of Ologies by Alie Ward.
- 
+
+Final analysis includes 246 unique episodes of Ologies by Alie Ward.
+
 ## What is the most common primary topic of Ologies?
- 
 
- 
-```{r}
-
+``` r
 #good but we can do better. let's reorder the dataframe so we can order by occurence
 
 
@@ -72,10 +65,12 @@ primary2 <- ggplot(data = ologies, aes(primary, fill = primary)) +
   
 primary2
 ```
- 
- ## By broad category
- 
-```{r}
+
+![](Ologies_Script_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+\## By broad category
+
+``` r
 branch <- ggplot(data = ologies, aes(branch, fill = branch)) +
   geom_bar(stat = "count", col = "#d397fa", alpha = 0.2)  +
   theme_minimal() +
@@ -85,10 +80,12 @@ branch <- ggplot(data = ologies, aes(branch, fill = branch)) +
   
 branch
 ```
- 
- Transform frequency into a count variable using dplyr
- 
-```{r}
+
+![](Ologies_Script_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+Transform frequency into a count variable using dplyr
+
+``` r
 ologies_count <- ologies %>%
   group_by(primary) %>%
   count(primary)
@@ -96,7 +93,7 @@ ologies_count <- ologies %>%
 
 Re-order
 
-```{r}
+``` r
 ologies_count <- as.data.frame(ologies_count)
 colnames(ologies_count) <- c("Primary", "Count")
 
@@ -111,11 +108,37 @@ ggplot(ologies_order, aes(x = Primary, y = Count, fill = Primary)) +
   coord_flip()
 ```
 
+![](Ologies_Script_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
 ## Episode duration distribution
 
-```{r}
+``` r
 head(ologies)
+```
 
+    ##    X                                                                  title
+    ## 1  1 Theoretical & Creative Ecology (SCIENCE & ECOPOETRY) with Madhur Anand
+    ## 2  3             Evolutionary Anthropology (METABOLISM) with Herman Pontzer
+    ## 3  6                              Carcinology (CRABS) Part 1 with Adam Wall
+    ## 4  7             Ethnoecology (ETHNOBOTANY/NATIVE PLANTS) with Leigh Joseph
+    ## 5 11                                  Lemurology (LEMURS) with Lydia Greene
+    ## 6 12           Quasithanatology (NEAR-DEATH EXPERIENCES) with Bruce Greyson
+    ##   release_date duration_ms duration_min            ology smologies encore
+    ## 1     2/7/2024     3423791        57.06          Ecology         0      0
+    ## 2    1/31/2024     5058324        84.31     Anthropology         0      0
+    ## 3    1/16/2024     4087431        68.12      Carcinology         0      0
+    ## 4     1/9/2024     4767425        79.46     Ethnoecology         0      0
+    ## 5   12/20/2023     4563173        76.05       Lemurology         0      0
+    ## 6   12/13/2023     5287340        88.12 Quasithanatology         0      0
+    ##   part_2 branch      primary secondary
+    ## 1      0    FNS          Art   Biology
+    ## 2      0    FSS Anthropology   Biology
+    ## 3      0    FNS      Biology      <NA>
+    ## 4      0    FSS Anthropology   Biology
+    ## 5      0    FNS      Biology      <NA>
+    ## 6      0    FSS   Psychology   Biology
+
+``` r
 ologies_ms_order <- ologies[order(ologies$duration_ms),]
 ologies_ms_order$duration_ms <- factor(ologies_ms_order$duration_ms, levels = ologies_ms_order$duration_ms)
 
@@ -134,29 +157,43 @@ durationplot <- ggplot(data = ologies_ms_order, aes(x = reorder(primary, -durati
   ggtitle("Duration of Ologies episodes")
 
 durationplot
-ggsave("duration_plot.jpg", plot = durationplot)
-  
 ```
 
-### Mean duration with error
-```{r}
+![](Ologies_Script_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
+``` r
+ggsave("duration_plot.jpg", plot = durationplot)
+```
+
+    ## Saving 7 x 5 in image
+
+### Mean duration with error
+
+``` r
 ggplot(ologies_ms_order, aes(x = reorder(primary, -duration_min), y = duration_min, fill = primary)) + 
   geom_bar(stat="summary", fun.y="mean", col = "#d397fa", alpha = 0.2) + 
 geom_errorbar(stat="summary", colour = "#d397fa", width = 0.2,
-				fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))}, 
-				fun.ymax=function(x) {mean(x)+sd(x)/sqrt(length(x))}) +
+                fun.ymin=function(x) {mean(x)-sd(x)/sqrt(length(x))}, 
+                fun.ymax=function(x) {mean(x)+sd(x)/sqrt(length(x))}) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
   ggtitle("Mean duration of ologies episodes (with error)")
-
 ```
 
+    ## Warning in geom_bar(stat = "summary", fun.y = "mean", col = "#d397fa", alpha =
+    ## 0.2): Ignoring unknown parameters: `fun.y`
+
+    ## Warning in geom_errorbar(stat = "summary", colour = "#d397fa", width = 0.2, :
+    ## Ignoring unknown parameters: `fun.ymin` and `fun.ymax`
+
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+
+![](Ologies_Script_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ## Ologies over time: distribution by year, month
 
-```{r}
-
+``` r
 #split the release date column so we can look by month, year
 
 ologies[c('Month', 'Day', 'Year')] <- str_split_fixed(ologies$release_date, '/*/', 3)
@@ -169,14 +206,14 @@ year <- ggplot(data = ologies, aes(Year, fill = Year)) +
   ggtitle("How many episodes released per year?")
   
 year
-
 ```
-### Month
 
+![](Ologies_Script_files/figure-gfm/unnamed-chunk-8-1.png)<!-- --> \###
+Month
 
 ### Months with correct labels
 
-```{r}
+``` r
 #create month labels
 
 monthNames2 <- c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
@@ -190,12 +227,13 @@ month <- ggplot(data = ologies, aes(Month, fill = Month)) +
   ggtitle("Frequency by month (cumulative)")
   
 month
-
 ```
+
+![](Ologies_Script_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ### Split by year
 
-```{r}
+``` r
 #split by year
 
 monthNames2 <- c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
@@ -210,9 +248,6 @@ monthyear <- ggplot(data = ologies, aes(Month, fill = Month)) +
   ggtitle("Frequency by month and year")
   
 monthyear
-
 ```
 
-
-
- 
+![](Ologies_Script_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
