@@ -5,9 +5,9 @@ Ever wondered what types of "Ologies" appear most frequently on the podcast? We'
 
 This project is a collaboration between Grace Deitzler, PHD and Nick Bira, PHD, two long-time Ologies enthusiasts.
 
-## Results Markdown
+# Results Markdown
 
-Ologies_Script.md contains the Rmarkdown file with all generated plots integrated. Very user-friendly to read. Feel free to check it out!
+Ologies_Analysis_Markdown.md contains the Rmarkdown file with all generated plots integrated. Very user-friendly to read. Feel free to check it out!
 
 # Ologies Dataset Parsing using Spotify
 
